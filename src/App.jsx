@@ -104,6 +104,7 @@ export default function App() {
   const [importError, setImportError] = useState(null)
   const [showReset, setShowReset] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  const [exportingPdf, setExportingPdf] = useState(false)
 
   useEffect(() => {
     async function init() {
@@ -177,12 +178,44 @@ export default function App() {
     } catch (err) { console.error(err); setSyncError('Erro ao sincronizar. Alteração salva localmente.') }
   }, [people])
 
-  const handleExport = useCallback(() => {
-    const blob = new Blob([JSON.stringify(people, null, 2)], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a'); a.href = url; a.download = 'familia-glock.json'; a.click()
-    URL.revokeObjectURL(url)
-  }, [people])
+  const handleExport = useCallback(async () => {
+    const { default: html2canvas } = await import('html2canvas')
+    const { jsPDF } = await import('jspdf')
+
+    const flowEl = document.querySelector('.react-flow__viewport')?.closest('.react-flow')
+    if (!flowEl) return
+
+    setExportingPdf(true)
+    const prevOverflow = flowEl.style.overflow
+    flowEl.style.overflow = 'visible'
+
+    try {
+      const canvas = await html2canvas(flowEl, {
+        backgroundColor: '#f0f4f8',
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        width: flowEl.scrollWidth,
+        height: flowEl.scrollHeight,
+      })
+
+      const imgData = canvas.toDataURL('image/png')
+      const imgW = canvas.width
+      const imgH = canvas.height
+      const orientation = imgW > imgH ? 'landscape' : 'portrait'
+      const pdf = new jsPDF({ orientation, unit: 'px', format: [imgW / 2, imgH / 2] })
+      pdf.addImage(imgData, 'PNG', 0, 0, imgW / 2, imgH / 2)
+      pdf.save('arvore-familia-glock.pdf')
+    } catch (err) {
+      console.error(err)
+      setSyncError('Erro ao gerar PDF. Tente novamente.')
+    } finally {
+      flowEl.style.overflow = prevOverflow
+      setExportingPdf(false)
+    }
+  }, [])
 
   const handleImport = useCallback(async (e) => {
     const file = e.target.files?.[0]; if (!file) return
@@ -311,8 +344,9 @@ export default function App() {
             Nova pessoa
           </button>
 
-          <button type="button" className="btn btn--ghost app__btn--hide-mobile" onClick={handleExport} title="Exportar JSON">
-            <span className="btn__icon">💾</span>
+          <button type="button" className="btn btn--ghost app__btn--hide-mobile" onClick={handleExport} title="Exportar PDF" disabled={exportingPdf}>
+            <span className="btn__icon">{exportingPdf ? '⏳' : '📄'}</span>
+            {exportingPdf ? 'Gerando…' : 'PDF'}
           </button>
         </div>
       </header>
