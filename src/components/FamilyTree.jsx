@@ -36,16 +36,37 @@ function buildLayout(people) {
   const byId = new Map(people.map(p => [p.id, p]))
 
   // 1. Detecta cônjuges "externos" (sem ascendência própria)
-  // Regra: pessoa sem pai e sem mãe, cujo cônjuge TEM pai ou mãe
-  // (independente de ter filhos — filhos não definem se é externo ou não)
+  // Regra: pessoa sem pai e sem mãe, cujo cônjuge TEM pai ou mãe OU tem filhos registrados
+  // Quando ambos são raízes sem ascendência, quem tem filhos lidera; o outro é "externo"
   const isSpouseOnly = new Set()
   people.forEach(p => {
     if (p.pai || p.mae) return          // tem ascendência → não é externo
     if (!p.conjuge) return              // sem cônjuge → raiz independente
     const conj = byId.get(p.conjuge)
     if (!conj) return
+
     const conjHasAscendency = conj.pai || conj.mae
-    if (conjHasAscendency) isSpouseOnly.add(p.id)
+    if (conjHasAscendency) {
+      // cônjuge tem ascendência → p é externo
+      isSpouseOnly.add(p.id)
+      return
+    }
+
+    // Ambos sem ascendência: quem tiver filhos registrados lidera
+    const pHasKids    = (p.filhos    || []).length > 0
+    const conjHasKids = (conj.filhos || []).length > 0
+
+    if (!pHasKids && conjHasKids) {
+      // eu não tenho filhos, cônjuge tem → sou externo
+      isSpouseOnly.add(p.id)
+    } else if (pHasKids && !conjHasKids) {
+      // eu tenho filhos, cônjuge não → cônjuge é externo (será marcado na volta)
+    } else {
+      // ambos têm ou nenhum tem → desempata por ordem no array (índice menor = líder)
+      const pIdx    = people.findIndex(x => x.id === p.id)
+      const conjIdx = people.findIndex(x => x.id === conj.id)
+      if (pIdx > conjIdx) isSpouseOnly.add(p.id)
+    }
   })
 
   // 2. Raízes
@@ -130,9 +151,14 @@ function buildLayout(people) {
 
 function conjId(p, byId, isSpouseOnly) {
   if (!p.conjuge || !byId.has(p.conjuge)) return null
+  // Se o cônjuge é externo → eu sou o líder, retorno o cônjuge
   if (isSpouseOnly.has(p.conjuge)) return p.conjuge
-  if (isSpouseOnly.has(p.id))      return null
-  return p.id < p.conjuge ? p.conjuge : null
+  // Se eu sou o externo → sou posicionado pelo meu cônjuge, não lidero
+  if (isSpouseOnly.has(p.id)) return null
+  // Ambos são raízes normais — não devo duplicar o par, então só o líder retorna
+  // O líder já foi definido pelo isSpouseOnly: se nenhum dos dois é externo aqui,
+  // significa que ambos são raízes independentes (sem cônjuge válido) — não renderiza par
+  return null
 }
 
 function getChildren(p, byId, cId = null) {
