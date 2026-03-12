@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { Handle, Position } from 'reactflow'
 import './PersonNode.css'
 
@@ -16,9 +16,12 @@ function getInitials(nome) {
 }
 
 function PersonNode({ data, selected }) {
-  const { nome, generation = 0, onClick, hasConjuge, filhosCount } = data
+  const { nome, generation = 0, onClick, hasConjuge, filhosCount, conjugeNome, paiNome, maeNome } = data
   const colorIdx = Math.min(generation, GENERATION_COLORS.length - 1)
   const colors = GENERATION_COLORS[colorIdx]
+  const [tooltipVisible, setTooltipVisible] = useState(false)
+
+  const hasTooltip = conjugeNome || paiNome || maeNome || filhosCount > 0
 
   return (
     <div
@@ -32,6 +35,8 @@ function PersonNode({ data, selected }) {
       onClick={() => onClick?.(data)}
       role="button"
       tabIndex={0}
+      onMouseEnter={() => hasTooltip && setTooltipVisible(true)}
+      onMouseLeave={() => setTooltipVisible(false)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
@@ -48,18 +53,25 @@ function PersonNode({ data, selected }) {
           <div className="person-node__meta">
             <span className="person-node__gen-label">{colors.label}</span>
             <div className="person-node__badges">
-              {hasConjuge && (
-                <span className="person-node__badge" title="Tem cônjuge">💍</span>
-              )}
+              {hasConjuge && <span className="person-node__badge" title="Tem cônjuge">💍</span>}
               {filhosCount > 0 && (
-                <span className="person-node__badge" title={`${filhosCount} filho(s)`}>
-                  👶 {filhosCount}
-                </span>
+                <span className="person-node__badge">👶 {filhosCount}</span>
               )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Tooltip hover */}
+      {tooltipVisible && hasTooltip && (
+        <div className="person-node__tooltip" onClick={(e) => e.stopPropagation()}>
+          {paiNome && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Pai</span>{paiNome}</div>}
+          {maeNome && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Mãe</span>{maeNome}</div>}
+          {conjugeNome && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Cônjuge</span>{conjugeNome}</div>}
+          {filhosCount > 0 && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Filhos</span>{filhosCount}</div>}
+          <div className="person-node__tooltip-hint">Clique para detalhes</div>
+        </div>
+      )}
 
       <Handle type="source" position={Position.Bottom} className="person-node__handle" />
     </div>
