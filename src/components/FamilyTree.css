@@ -1,0 +1,40 @@
+.family-tree {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Flow overrides ──────────────────────────────── */
+.family-tree .react-flow__attribution {
+  font-size: 10px;
+  opacity: 0.4;
+  background: transparent;
+}
+
+.family-tree .react-flow__controls {
+  border-radius: 99px !important;
+}
+
+.family-tree .react-flow__controls-button {
+  width: 30px;
+  height: 30px;
+  background: #fff;
+  border: none;
+  border-right: 1px solid #e2e8f0;
+  color: #4a5568;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.family-tree .react-flow__controls-button:last-child {
+  border-right: none;
+}
+
+.family-tree .react-flow__controls-button:hover {
+  background: #f0f4f8;
+}
+
+.family-tree .react-flow__controls-button svg {
+  fill: #4a5568;
+}
