@@ -153,6 +153,7 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
         className={`pe-drawer ${visible ? 'pe-drawer--visible' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="pe-drawer__handle" aria-hidden="true" />
         {/* Header */}
         <div className="pe-drawer__header">
           <div>

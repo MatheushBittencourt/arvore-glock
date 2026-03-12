@@ -292,14 +292,14 @@ export default function App() {
 
           <button
             type="button"
-            className="btn btn--primary"
+            className="btn btn--primary app__btn--new-desktop"
             onClick={() => setShowAdd(true)}
           >
             <span className="btn__icon">＋</span>
             Nova pessoa
           </button>
 
-          <button type="button" className="btn btn--ghost" onClick={handleExport} title="Exportar JSON">
+          <button type="button" className="btn btn--ghost app__btn--hide-mobile" onClick={handleExport} title="Exportar JSON">
             <span className="btn__icon">💾</span>
           </button>
         </div>
@@ -420,6 +420,16 @@ export default function App() {
           Supabase
         </div>
       </main>
+
+      {/* ── FAB mobile (Nova pessoa) ── */}
+      <button
+        type="button"
+        className="app__fab"
+        onClick={() => setShowAdd(true)}
+        aria-label="Nova pessoa"
+      >
+        ＋
+      </button>
 
       {/* ── Toasts ── */}
       {(importError || syncError) && (

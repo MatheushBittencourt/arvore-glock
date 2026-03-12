@@ -55,7 +55,7 @@ function SearchBar({ people, onSelect }) {
           ref={inputRef}
           type="text"
           className="search-bar__input"
-          placeholder="Buscar pessoa… (⌘K)"
+          placeholder="Buscar pessoa…"
           value={query}
           onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
           onFocus={() => setOpen(true)}
