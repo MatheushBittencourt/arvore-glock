@@ -82,10 +82,11 @@ function SearchSelect({ id, value, onChange, options, placeholder }) {
   )
 }
 
-function PersonEditor({ person, people, onSave, onCancel, isNew }) {
+function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
   const [form, setForm] = useState(EMPTY_PERSON)
   const [filhosSearch, setFilhosSearch] = useState('')
   const [visible, setVisible] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -289,12 +290,33 @@ function PersonEditor({ person, people, onSave, onCancel, isNew }) {
           </div>
 
           <div className="pe-drawer__footer">
-            <button type="button" onClick={handleClose} className="btn btn--ghost pe-btn">
-              Cancelar
-            </button>
-            <button type="submit" className="btn btn--primary pe-btn">
-              {isNew ? '+ Adicionar' : '✓ Salvar alterações'}
-            </button>
+            {!isNew && onDelete && (
+              confirmDelete ? (
+                <div className="pe-delete-confirm">
+                  <span>Excluir permanentemente?</span>
+                  <button type="button" className="btn btn--danger pe-btn" onClick={() => onDelete(form.id)}>
+                    Confirmar
+                  </button>
+                  <button type="button" className="btn btn--ghost pe-btn" onClick={() => setConfirmDelete(false)}>
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <button type="button" className="btn btn--danger-ghost pe-btn pe-btn--delete" onClick={() => setConfirmDelete(true)}>
+                  Excluir
+                </button>
+              )
+            )}
+            {!confirmDelete && (
+              <>
+                <button type="button" onClick={handleClose} className="btn btn--ghost pe-btn">
+                  Cancelar
+                </button>
+                <button type="submit" className="btn btn--primary pe-btn">
+                  {isNew ? '+ Adicionar' : '✓ Salvar alterações'}
+                </button>
+              </>
+            )}
           </div>
         </form>
       </aside>

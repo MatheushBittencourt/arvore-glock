@@ -27,7 +27,12 @@ async function dbUpsert(person) {
 }
 async function dbSeedInitial(people) {
   if (!supabase) return
-  const { error } = await supabase.from('pessoas').upsert(people.map(personToRow), { onConflict: 'id' })
+  // Só insere registros que ainda NÃO existem — nunca sobrescreve dados editados pelo usuário
+  const { data: existing } = await supabase.from('pessoas').select('id')
+  const existingIds = new Set((existing || []).map(r => r.id))
+  const toInsert = people.filter(p => !existingIds.has(p.id))
+  if (!toInsert.length) return
+  const { error } = await supabase.from('pessoas').insert(toInsert.map(personToRow))
   if (error) throw error
 }
 async function dbDeleteAll() {
@@ -194,6 +199,32 @@ export default function App() {
     }
     reader.readAsText(file); e.target.value = ''
   }, [])
+
+  const handleDeletePerson = useCallback(async (id) => {
+    // Remove referências dessa pessoa em todos os outros registros
+    const next = people
+      .filter((p) => p.id !== id)
+      .map((p) => ({
+        ...p,
+        pai: p.pai === id ? null : p.pai,
+        mae: p.mae === id ? null : p.mae,
+        conjuge: p.conjuge === id ? null : p.conjuge,
+        filhos: (p.filhos || []).filter((fid) => fid !== id),
+      }))
+    setPeople(next); lsSave(next)
+    setEditingId(null); setSelectedId(null)
+    try {
+      if (supabase) await supabase.from('pessoas').delete().eq('id', id)
+      // Atualiza registros afetados no banco
+      const affected = next.filter((p) =>
+        p.pai === null && people.find((o) => o.id === p.id)?.pai === id ||
+        p.mae === null && people.find((o) => o.id === p.id)?.mae === id ||
+        p.conjuge === null && people.find((o) => o.id === p.id)?.conjuge === id ||
+        people.find((o) => o.id === p.id)?.filhos?.includes(id)
+      )
+      await Promise.all(affected.map(dbUpsert))
+    } catch (err) { console.error(err); setSyncError('Erro ao excluir no banco. Alteração salva localmente.') }
+  }, [people])
 
   const handleReset = useCallback(async () => {
     setPeople(initialFamily); lsSave(initialFamily); setSelectedId(null); setFocusPersonId(null); setShowReset(false)
@@ -454,7 +485,7 @@ export default function App() {
         <PersonEditor person={null} people={people} onSave={handleSavePerson} onCancel={() => setShowAdd(false)} isNew />
       )}
       {editingPerson && (
-        <PersonEditor person={editingPerson} people={people} onSave={handleSavePerson} onCancel={() => setEditingId(null)} isNew={false} />
+        <PersonEditor person={editingPerson} people={people} onSave={handleSavePerson} onCancel={() => setEditingId(null)} onDelete={handleDeletePerson} isNew={false} />
       )}
     </div>
   )

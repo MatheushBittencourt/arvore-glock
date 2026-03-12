@@ -136,6 +136,16 @@
   border-color: #fca5a5;
 }
 
+.btn--danger-ghost {
+  background: transparent;
+  color: var(--clr-danger);
+  border-color: #fecaca;
+}
+.btn--danger-ghost:not(:disabled):hover {
+  background: #fff0f0;
+  border-color: #fca5a5;
+}
+
 .btn__icon { font-size: 14px; line-height: 1; }
 
 .app__file-input { position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden; }
