@@ -27,9 +27,6 @@ async function dbUpsert(person) {
 }
 async function dbSeedInitial(people) {
   if (!supabase) return
-  // Remove registros que não existem mais no initialFamily
-  const validIds = people.map(p => p.id)
-  await supabase.from('pessoas').delete().not('id', 'in', `(${validIds.map(id => `"${id}"`).join(',')})`)
   const { error } = await supabase.from('pessoas').upsert(people.map(personToRow), { onConflict: 'id' })
   if (error) throw error
 }
@@ -107,12 +104,38 @@ export default function App() {
     async function init() {
       try {
         let remote = await dbLoadAll()
-        const validIds = new Set(initialFamily.map(p => p.id))
-        const hasStale = remote.some(p => !validIds.has(p.id))
-        if (remote.length === 0 || hasStale) {
+
+        if (remote.length === 0) {
+          // Banco vazio: sobe os dados iniciais
           await dbSeedInitial(initialFamily)
           remote = initialFamily
+        } else {
+          // Migração pontual: remove IDs que não existem mais no initialFamily
+          // E que também não foram adicionados pelo usuário (sem pai/mãe/conjuge apontando para eles)
+          const initialIds = new Set(initialFamily.map(p => p.id))
+          const remoteIds  = new Set(remote.map(p => p.id))
+          // IDs referenciados por alguma pessoa do banco (filhos, pai, mãe, cônjuge)
+          const referenced = new Set()
+          remote.forEach(p => {
+            if (p.pai)    referenced.add(p.pai)
+            if (p.mae)    referenced.add(p.mae)
+            if (p.conjuge) referenced.add(p.conjuge)
+            ;(p.filhos || []).forEach(id => referenced.add(id))
+          })
+          // IDs "órfãos" antigos: não estão no initialFamily atual E não são referenciados por ninguém
+          const staleIds = remote
+            .filter(p => !initialIds.has(p.id) && !referenced.has(p.id))
+            .map(p => p.id)
+          if (staleIds.length > 0 && supabase) {
+            await Promise.all(staleIds.map(id => supabase.from('pessoas').delete().eq('id', id)))
+            remote = remote.filter(p => !staleIds.includes(p.id))
+          }
+          // Garante que os registros do initialFamily estão atualizados
+          await dbSeedInitial(initialFamily)
+          // Recarrega para garantir consistência
+          remote = await dbLoadAll()
         }
+
         setPeople(remote); lsSave(remote)
       } catch (err) {
         console.error(err)
