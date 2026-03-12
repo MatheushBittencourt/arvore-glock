@@ -299,17 +299,8 @@ export default function App() {
             Nova pessoa
           </button>
 
-          <label className="btn btn--ghost" style={{ cursor: 'pointer' }} title="Importar JSON">
-            <span className="btn__icon">📂</span>
-            <input type="file" accept=".json,application/json" onChange={handleImport} className="app__file-input" />
-          </label>
-
           <button type="button" className="btn btn--ghost" onClick={handleExport} title="Exportar JSON">
             <span className="btn__icon">💾</span>
-          </button>
-
-          <button type="button" className="btn btn--danger" onClick={() => setShowReset(true)} title="Restaurar dados iniciais">
-            <span className="btn__icon">↺</span>
           </button>
         </div>
       </header>
