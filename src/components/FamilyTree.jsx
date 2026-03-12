@@ -36,15 +36,16 @@ function buildLayout(people) {
   const byId = new Map(people.map(p => [p.id, p]))
 
   // 1. Detecta cônjuges "externos" (sem ascendência própria)
+  // Regra: pessoa sem pai e sem mãe, cujo cônjuge TEM pai ou mãe
+  // (independente de ter filhos — filhos não definem se é externo ou não)
   const isSpouseOnly = new Set()
   people.forEach(p => {
-    if (p.pai || p.mae) return
-    if (!p.conjuge) return
+    if (p.pai || p.mae) return          // tem ascendência → não é externo
+    if (!p.conjuge) return              // sem cônjuge → raiz independente
     const conj = byId.get(p.conjuge)
     if (!conj) return
-    const meHaveKids  = (p.filhos   || []).some(id => { const f = byId.get(id); return f && (f.pai === p.id    || f.mae === p.id) })
-    const conjHasLine = conj.pai || conj.mae
-    if (!meHaveKids && conjHasLine) isSpouseOnly.add(p.id)
+    const conjHasAscendency = conj.pai || conj.mae
+    if (conjHasAscendency) isSpouseOnly.add(p.id)
   })
 
   // 2. Raízes
