@@ -22,6 +22,7 @@ function lsLoad() {
 
 // ── Supabase helpers ──────────────────────────────────────────────
 async function dbLoadAll() {
+  if (!supabase) throw new Error('Supabase não configurado')
   const { data, error } = await supabase
     .from('pessoas')
     .select('*')
@@ -31,6 +32,7 @@ async function dbLoadAll() {
 }
 
 async function dbUpsert(person) {
+  if (!supabase) return
   const { error } = await supabase
     .from('pessoas')
     .upsert(personToRow(person), { onConflict: 'id' })
@@ -38,11 +40,13 @@ async function dbUpsert(person) {
 }
 
 async function dbDelete(id) {
+  if (!supabase) return
   const { error } = await supabase.from('pessoas').delete().eq('id', id)
   if (error) throw error
 }
 
 async function dbSeedInitial(people) {
+  if (!supabase) return
   const rows = people.map(personToRow)
   const { error } = await supabase
     .from('pessoas')
