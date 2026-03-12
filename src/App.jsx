@@ -426,11 +426,7 @@ export default function App() {
           </div>
         </div>
 
-        {/* ── Badge Supabase ── */}
-        <div className="app__sync-badge">
-          <span className="app__sync-dot" />
-          Supabase
-        </div>
+
       </main>
 
       {/* ── FAB mobile (Nova pessoa) ── */}
