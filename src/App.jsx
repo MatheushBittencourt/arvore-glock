@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import FamilyTree from './components/FamilyTree.jsx'
 import PersonEditor from './components/PersonEditor.jsx'
 import SearchBar from './components/SearchBar.jsx'
+import DocumentManager from './components/DocumentManager.jsx'
 import initialFamily from './data/initialFamily.json'
 import { supabase } from './lib/supabase.js'
 import './App.css'
@@ -491,6 +492,7 @@ export default function App() {
               </button>
               <button type="button" className="btn btn--ghost" onClick={() => setSelectedId(null)}>✕</button>
             </div>
+            <DocumentManager pessoaId={selectedPerson.id} pessoaNome={selectedPerson.nome} />
           </aside>
         )}
 
