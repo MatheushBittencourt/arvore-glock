@@ -363,12 +363,13 @@ export default function App() {
 
         {/* ── Legenda ── */}
         <div className="app__legend">
-          <div className="legend__title">Legenda</div>
+          <div className="legend__title">Gerações</div>
           {[
             { color: '#3b5bdb', label: 'Fundadores' },
-            { color: '#0ca678', label: '1ª geração' },
-            { color: '#e67700', label: '2ª geração' },
-            { color: '#ae3ec9', label: '3ª+ geração' },
+            { color: '#0891b2', label: '1ª geração' },
+            { color: '#0ca678', label: '2ª geração' },
+            { color: '#d97706', label: '3ª geração' },
+            { color: '#7c3aed', label: '4ª+ geração' },
           ].map((l) => (
             <div key={l.label} className="legend__item">
               <div className="legend__dot" style={{ background: l.color }} />
@@ -376,6 +377,7 @@ export default function App() {
             </div>
           ))}
           <div className="legend__divider" />
+          <div className="legend__title">Linhas</div>
           <div className="legend__item">
             <div className="legend__line legend__line--solid" />
             <span>Linha paterna</span>

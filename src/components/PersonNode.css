@@ -1,181 +1,187 @@
-.person-node {
-  background: var(--node-bg, #ebefff);
-  border: 2px solid var(--node-border, #3b5bdb);
-  border-radius: 12px;
+/* ── Nó ──────────────────────────────────────────────── */
+.pn {
   width: 200px;
+  background: var(--bg, #eef2ff);
+  border: 2px solid var(--bd, #818cf8);
+  border-radius: 14px;
   cursor: pointer;
-  transition: box-shadow 0.18s ease, transform 0.15s ease;
-  outline: none;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   position: relative;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
 }
 
-.person-node:hover {
-  box-shadow: 0 8px 24px rgba(0,0,0,0.14);
-  transform: translateY(-2px);
+.pn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
   z-index: 10;
 }
 
-.person-node:focus-visible {
-  outline: 2px solid var(--node-border, #3b5bdb);
+.pn:focus-visible {
+  outline: 2px solid var(--co);
   outline-offset: 3px;
 }
 
-.person-node--selected {
-  box-shadow: 0 0 0 3px var(--node-border, #3b5bdb), 0 8px 24px rgba(0,0,0,0.14);
-  transform: translateY(-2px);
+.pn--selected {
+  box-shadow: 0 0 0 3px var(--bd), 0 8px 24px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
   z-index: 10;
 }
 
-/* ── Inner ─────────────────────────────────────────── */
-.person-node__inner {
+/* ── Body ────────────────────────────────────────────── */
+.pn__body {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 10px 12px 10px 10px;
 }
 
-/* ── Avatar ────────────────────────────────────────── */
-.person-node__avatar {
+/* ── Avatar ──────────────────────────────────────────── */
+.pn__av {
   flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  background: var(--node-avatar);
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 800;
   color: #fff;
   letter-spacing: -0.5px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
 
-/* ── Info ──────────────────────────────────────────── */
-.person-node__info {
+/* ── Info ────────────────────────────────────────────── */
+.pn__info {
   flex: 1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
 }
 
-.person-node__name {
-  font-size: 12px;
+.pn__name {
+  font-size: 12.5px;
   font-weight: 700;
-  color: var(--node-text);
-  line-height: 1.3;
+  color: var(--co, #3b5bdb);
+  line-height: 1.35;
   word-break: break-word;
+  margin-bottom: 4px;
 }
 
-.person-node__meta {
+.pn__foot {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  gap: 5px;
+  flex-wrap: wrap;
 }
 
-.person-node__gen-label {
+.pn__label {
   font-size: 9.5px;
-  font-weight: 600;
-  color: var(--node-text);
-  opacity: 0.55;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
+  color: var(--co);
+  opacity: 0.55;
   white-space: nowrap;
 }
 
-.person-node__badges {
+/* ── Pills ───────────────────────────────────────────── */
+.pn__pills {
   display: flex;
-  gap: 3px;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
-.person-node__badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 10px;
+.pn__pill {
+  font-size: 9.5px;
   font-weight: 600;
-  color: var(--node-text);
-  background: rgba(255,255,255,0.65);
-  border: 1px solid var(--node-border);
+  padding: 1px 6px;
   border-radius: 99px;
-  padding: 1px 5px;
-  opacity: 0.85;
-  gap: 2px;
+  border: 1px solid var(--bd);
+  color: var(--co);
+  background: rgba(255,255,255,0.7);
+  white-space: nowrap;
 }
 
-/* ── Handles ───────────────────────────────────────── */
-.person-node__handle.react-flow__handle {
-  width: 8px;
-  height: 8px;
-  background: var(--node-border, #3b5bdb);
+.pn__pill--ring::before {
+  content: '♦ ';
+  font-size: 8px;
+}
+
+/* ── Handles ─────────────────────────────────────────── */
+.pn__handle.react-flow__handle {
+  width: 9px;
+  height: 9px;
+  background: var(--co, #3b5bdb);
   border: 2px solid #fff;
   border-radius: 50%;
+  transition: transform 0.15s;
 }
 
-/* ── Tooltip ───────────────────────────────────────── */
-.person-node__tooltip {
+.pn:hover .pn__handle.react-flow__handle {
+  transform: scale(1.3);
+}
+
+/* ── Tooltip ─────────────────────────────────────────── */
+.pn__tip {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   left: 50%;
   transform: translateX(-50%);
-  z-index: 100;
-  background: #1c2333;
-  color: #e2e8f0;
-  border-radius: var(--radius-md);
-  padding: 10px 14px;
-  min-width: 180px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  z-index: 200;
+  min-width: 190px;
+  background: #0f172a;
+  border-radius: 10px;
+  padding: 10px 13px 8px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
   pointer-events: none;
-  animation: tooltipIn 0.12s ease;
+  animation: tipIn 0.12s ease;
 }
 
-.person-node__tooltip::before {
+.pn__tip::before {
   content: '';
   position: absolute;
   top: -5px;
   left: 50%;
   transform: translateX(-50%);
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-bottom: 5px solid #1c2333;
+  border: 5px solid transparent;
+  border-top: 0;
+  border-bottom-color: #0f172a;
 }
 
-@keyframes tooltipIn {
+@keyframes tipIn {
   from { opacity: 0; transform: translateX(-50%) translateY(4px); }
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-.person-node__tooltip-row {
+.pn__tip-row {
   display: flex;
-  align-items: flex-start;
   gap: 8px;
-  font-size: 0.78rem;
-  margin-bottom: 5px;
+  font-size: 11.5px;
+  color: #cbd5e1;
+  margin-bottom: 4px;
   line-height: 1.4;
 }
 
-.person-node__tooltip-row:last-of-type {
-  margin-bottom: 0;
-}
-
-.person-node__tooltip-label {
+.pn__tip-k {
   flex-shrink: 0;
-  width: 50px;
+  width: 52px;
   font-weight: 700;
-  opacity: 0.55;
-  font-size: 0.72rem;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
+  color: #64748b;
   padding-top: 1px;
 }
 
-.person-node__tooltip-hint {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 0.7rem;
-  opacity: 0.4;
+.pn__tip-v {
+  color: #e2e8f0;
+}
+
+.pn__tip-hint {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #1e293b;
+  font-size: 10px;
+  color: #475569;
   text-align: center;
 }

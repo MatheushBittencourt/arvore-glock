@@ -2,78 +2,86 @@ import { memo, useState } from 'react'
 import { Handle, Position } from 'reactflow'
 import './PersonNode.css'
 
-const GENERATION_COLORS = [
-  { bg: '#ebefff', border: '#3b5bdb', avatar: 'linear-gradient(135deg, #3b5bdb, #6c63ff)', text: '#2f4ac7', label: 'Fundador(a)' },
-  { bg: '#e6faf4', border: '#0ca678', avatar: 'linear-gradient(135deg, #0ca678, #20c997)', text: '#087f5b', label: '1ª geração' },
-  { bg: '#fff3e0', border: '#e67700', avatar: 'linear-gradient(135deg, #e67700, #fd9a00)', text: '#b45309', label: '2ª geração' },
-  { bg: '#f5e6fd', border: '#ae3ec9', avatar: 'linear-gradient(135deg, #ae3ec9, #cc5de8)', text: '#862e9c', label: '3ª+ geração' },
+// Paleta idêntica à do FamilyTree
+const PALETTE = [
+  { color: '#3b5bdb', bg: '#eef2ff', border: '#818cf8', label: 'Fundadores' },
+  { color: '#0891b2', bg: '#ecfeff', border: '#22d3ee', label: '1ª geração'  },
+  { color: '#0ca678', bg: '#ecfdf5', border: '#34d399', label: '2ª geração'  },
+  { color: '#d97706', bg: '#fffbeb', border: '#fbbf24', label: '3ª geração'  },
+  { color: '#7c3aed', bg: '#f5f3ff', border: '#a78bfa', label: '4ª+ geração' },
 ]
 
-function getInitials(nome) {
-  const parts = nome.split(' ').filter(Boolean)
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+function initials(nome) {
+  const p = nome.trim().split(/\s+/)
+  if (p.length === 1) return p[0].slice(0, 2).toUpperCase()
+  return (p[0][0] + p[p.length - 1][0]).toUpperCase()
 }
 
 function PersonNode({ data, selected }) {
-  const { nome, generation = 0, onClick, hasConjuge, filhosCount, conjugeNome, paiNome, maeNome } = data
-  const colorIdx = Math.min(generation, GENERATION_COLORS.length - 1)
-  const colors = GENERATION_COLORS[colorIdx]
-  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const {
+    nome, generation = 0, isSpouseOnly = false,
+    hasConjuge, filhosCount, paiNome, maeNome, conjugeNome,
+    onClick,
+  } = data
 
-  const hasTooltip = conjugeNome || paiNome || maeNome || filhosCount > 0
+  const pal   = PALETTE[Math.min(generation, PALETTE.length - 1)]
+  const label = isSpouseOnly ? 'Cônjuge' : pal.label
+
+  const [tip, setTip] = useState(false)
+  const hasTip = paiNome || maeNome || conjugeNome || filhosCount > 0
 
   return (
     <div
-      className={`person-node ${selected ? 'person-node--selected' : ''}`}
-      style={{
-        '--node-bg': colors.bg,
-        '--node-border': colors.border,
-        '--node-text': colors.text,
-        '--node-avatar': colors.avatar,
-      }}
+      className={`pn ${selected ? 'pn--selected' : ''}`}
+      style={{ '--bg': pal.bg, '--bd': pal.border, '--co': pal.color }}
       onClick={() => onClick?.(data)}
+      onMouseEnter={() => hasTip && setTip(true)}
+      onMouseLeave={() => setTip(false)}
       role="button"
       tabIndex={0}
-      onMouseEnter={() => hasTooltip && setTooltipVisible(true)}
-      onMouseLeave={() => setTooltipVisible(false)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onClick?.(data)
-        }
-      }}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(data) } }}
     >
-      <Handle type="target" position={Position.Top} className="person-node__handle" />
+      <Handle type="target"  position={Position.Top}    className="pn__handle" />
+      <Handle type="source"  position={Position.Bottom} className="pn__handle" />
 
-      <div className="person-node__inner">
-        <div className="person-node__avatar">{getInitials(nome)}</div>
-        <div className="person-node__info">
-          <span className="person-node__name">{nome}</span>
-          <div className="person-node__meta">
-            <span className="person-node__gen-label">{colors.label}</span>
-            <div className="person-node__badges">
-              {hasConjuge && <span className="person-node__badge" title="Tem cônjuge">💍</span>}
-              {filhosCount > 0 && (
-                <span className="person-node__badge">👶 {filhosCount}</span>
-              )}
+      <div className="pn__body">
+        {/* Avatar */}
+        <div className="pn__av" style={{ background: `linear-gradient(135deg, ${pal.color}, ${pal.border})` }}>
+          {initials(nome)}
+        </div>
+
+        {/* Info */}
+        <div className="pn__info">
+          <div className="pn__name">{nome}</div>
+          <div className="pn__foot">
+            <span className="pn__label">{label}</span>
+            <div className="pn__pills">
+              {hasConjuge  && <span className="pn__pill pn__pill--ring"  title="Tem cônjuge">casado(a)</span>}
+              {filhosCount > 0 && <span className="pn__pill" title={`${filhosCount} filho(s)`}>{filhosCount} {filhosCount === 1 ? 'filho' : 'filhos'}</span>}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tooltip hover */}
-      {tooltipVisible && hasTooltip && (
-        <div className="person-node__tooltip" onClick={(e) => e.stopPropagation()}>
-          {paiNome && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Pai</span>{paiNome}</div>}
-          {maeNome && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Mãe</span>{maeNome}</div>}
-          {conjugeNome && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Cônjuge</span>{conjugeNome}</div>}
-          {filhosCount > 0 && <div className="person-node__tooltip-row"><span className="person-node__tooltip-label">Filhos</span>{filhosCount}</div>}
-          <div className="person-node__tooltip-hint">Clique para detalhes</div>
+      {/* Tooltip */}
+      {tip && hasTip && (
+        <div className="pn__tip" onClick={e => e.stopPropagation()}>
+          {paiNome    && <Row k="Pai"     v={paiNome} />}
+          {maeNome    && <Row k="Mãe"     v={maeNome} />}
+          {conjugeNome && <Row k="Cônjuge" v={conjugeNome} />}
+          {filhosCount > 0 && <Row k="Filhos" v={filhosCount} />}
+          <div className="pn__tip-hint">Clique para ver detalhes</div>
         </div>
       )}
+    </div>
+  )
+}
 
-      <Handle type="source" position={Position.Bottom} className="person-node__handle" />
+function Row({ k, v }) {
+  return (
+    <div className="pn__tip-row">
+      <span className="pn__tip-k">{k}</span>
+      <span className="pn__tip-v">{v}</span>
     </div>
   )
 }
