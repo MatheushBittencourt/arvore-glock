@@ -269,7 +269,7 @@ export default function App() {
         <div className="app__actions">
           <button
             type="button"
-            className={`btn btn--ghost ${focusPersonId ? 'btn--active' : ''}`}
+            className={`btn btn--ghost app__btn--hide-mobile ${focusPersonId ? 'btn--active' : ''}`}
             onClick={() => setFocusPersonId(null)}
             title="Exibir toda a árvore"
             disabled={!focusPersonId}
@@ -278,9 +278,21 @@ export default function App() {
             <span className="app__btn-label">Árvore completa</span>
           </button>
 
+          {/* Botão árvore completa visível no mobile só quando foco ativo */}
+          {focusPersonId && (
+            <button
+              type="button"
+              className="btn btn--active app__btn--show-focus-mobile"
+              onClick={() => setFocusPersonId(null)}
+              title="Exibir toda a árvore"
+            >
+              <span className="btn__icon">🌐</span>
+            </button>
+          )}
+
           <button
             type="button"
-            className="btn btn--ghost"
+            className="btn btn--ghost app__btn--hide-mobile"
             onClick={() => setShowStats(true)}
             title="Estatísticas"
           >

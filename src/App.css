@@ -92,7 +92,13 @@
 /* No mobile: oculta botões secundários do header */
 @media (max-width: 599px) {
   .app__btn--hide-mobile { display: none; }
+  .app__btn--new-desktop { display: none; }
+  .app__btn--show-focus-mobile { display: inline-flex; }
   .app__header { padding: 0 12px; gap: 8px; }
+}
+
+@media (min-width: 600px) {
+  .app__btn--show-focus-mobile { display: none; }
 }
 
 /* ── Botão flutuante (FAB) no mobile ──────────────── */
