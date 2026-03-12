@@ -344,8 +344,8 @@
 
 .info-panel__avatar {
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   background: linear-gradient(135deg, var(--clr-brand), #6c63ff);
   border-radius: 50%;
   display: flex;
@@ -355,6 +355,50 @@
   font-weight: 700;
   color: #fff;
   box-shadow: 0 2px 8px rgba(59, 91, 219, 0.25);
+  overflow: hidden;
+}
+
+.info-panel__avatar--photo {
+  background: none;
+  object-fit: cover;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.info-panel__badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 99px;
+  padding: 2px 8px;
+  margin-top: 3px;
+}
+
+.info-panel__badge--falecido {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.info-panel__dates {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.info-panel__date {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+}
+
+.info-panel__obs {
+  font-size: 0.82rem;
+  color: var(--clr-text);
+  line-height: 1.6;
+  margin: 4px 0 0;
+  white-space: pre-wrap;
 }
 
 .info-panel__name {

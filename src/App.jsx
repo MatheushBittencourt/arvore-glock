@@ -42,10 +42,29 @@ async function dbDeleteAll() {
 }
 
 function personToRow(p) {
-  return { id: p.id, nome: p.nome, pai: p.pai ?? null, mae: p.mae ?? null, conjuge: p.conjuge ?? null, filhos: Array.isArray(p.filhos) ? p.filhos : [], updated_at: new Date().toISOString() }
+  return {
+    id: p.id, nome: p.nome,
+    pai: p.pai ?? null, mae: p.mae ?? null,
+    conjuge: p.conjuge ?? null,
+    filhos: Array.isArray(p.filhos) ? p.filhos : [],
+    foto_url: p.foto_url ?? null,
+    nascimento: p.nascimento ?? null,
+    falecimento: p.falecimento ?? null,
+    observacoes: p.observacoes ?? null,
+    updated_at: new Date().toISOString(),
+  }
 }
 function rowToPerson(row) {
-  return { id: row.id, nome: row.nome, pai: row.pai ?? null, mae: row.mae ?? null, conjuge: row.conjuge ?? null, filhos: Array.isArray(row.filhos) ? row.filhos : [] }
+  return {
+    id: row.id, nome: row.nome,
+    pai: row.pai ?? null, mae: row.mae ?? null,
+    conjuge: row.conjuge ?? null,
+    filhos: Array.isArray(row.filhos) ? row.filhos : [],
+    foto_url: row.foto_url ?? null,
+    nascimento: row.nascimento ?? null,
+    falecimento: row.falecimento ?? null,
+    observacoes: row.observacoes ?? null,
+  }
 }
 
 function syncBidirectional(people, updated) {
@@ -68,6 +87,21 @@ function syncBidirectional(people, updated) {
 function getInitials(nome) {
   const p = nome.split(' ').filter(Boolean)
   return p.length === 1 ? p[0].slice(0, 2).toUpperCase() : (p[0][0] + p[p.length - 1][0]).toUpperCase()
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  const [y, m, d] = dateStr.split('-')
+  return `${d}/${m}/${y}`
+}
+
+function calcAge(nascimento, falecimento) {
+  if (!nascimento) return ''
+  const end = falecimento ? new Date(falecimento) : new Date()
+  const start = new Date(nascimento)
+  const age = end.getFullYear() - start.getFullYear() -
+    (end.getMonth() < start.getMonth() || (end.getMonth() === start.getMonth() && end.getDate() < start.getDate()) ? 1 : 0)
+  return falecimento ? `${age} anos (falecido)` : `${age} anos`
 }
 
 function computeStats(people) {
@@ -365,9 +399,15 @@ export default function App() {
         {selectedPerson && (
           <aside className="app__info-panel">
             <div className="info-panel__header">
-              <div className="info-panel__avatar">{getInitials(selectedPerson.nome)}</div>
+              {selectedPerson.foto_url
+                ? <img src={selectedPerson.foto_url} alt={selectedPerson.nome} className="info-panel__avatar info-panel__avatar--photo" />
+                : <div className="info-panel__avatar">{getInitials(selectedPerson.nome)}</div>
+              }
               <div>
                 <div className="info-panel__name">{selectedPerson.nome}</div>
+                {selectedPerson.falecimento && (
+                  <div className="info-panel__badge info-panel__badge--falecido">✝ Falecido(a)</div>
+                )}
                 {(paiNome || maeNome) && (
                   <div className="info-panel__parents">
                     {[paiNome, maeNome].filter(Boolean).join(' & ')}
@@ -376,6 +416,32 @@ export default function App() {
               </div>
             </div>
             <div className="info-panel__body">
+              {/* Datas */}
+              {(selectedPerson.nascimento || selectedPerson.falecimento) && (
+                <div className="info-panel__row">
+                  <span className="info-panel__icon">📅</span>
+                  <div className="info-panel__dates">
+                    {selectedPerson.nascimento && (
+                      <span className="info-panel__date">
+                        <span className="info-panel__label">Nascimento</span>
+                        <span className="info-panel__value">{formatDate(selectedPerson.nascimento)}</span>
+                      </span>
+                    )}
+                    {selectedPerson.falecimento && (
+                      <span className="info-panel__date">
+                        <span className="info-panel__label">Falecimento</span>
+                        <span className="info-panel__value">{formatDate(selectedPerson.falecimento)}</span>
+                      </span>
+                    )}
+                    {selectedPerson.nascimento && (
+                      <span className="info-panel__date">
+                        <span className="info-panel__label">Idade</span>
+                        <span className="info-panel__value">{calcAge(selectedPerson.nascimento, selectedPerson.falecimento)}</span>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
               {conjugeNome && (
                 <div className="info-panel__row">
                   <span className="info-panel__icon">💍</span>
@@ -394,8 +460,17 @@ export default function App() {
                   </div>
                 </div>
               )}
-              {!conjugeNome && filhosNomes.length === 0 && !paiNome && !maeNome && (
-                <div className="info-panel__empty">Nenhuma relação cadastrada.</div>
+              {selectedPerson.observacoes && (
+                <div className="info-panel__row info-panel__row--col">
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <span className="info-panel__icon">📝</span>
+                    <span className="info-panel__label">Observações</span>
+                  </div>
+                  <p className="info-panel__obs">{selectedPerson.observacoes}</p>
+                </div>
+              )}
+              {!conjugeNome && filhosNomes.length === 0 && !paiNome && !maeNome && !selectedPerson.nascimento && !selectedPerson.observacoes && (
+                <div className="info-panel__empty">Nenhuma informação cadastrada.</div>
               )}
             </div>
             <div className="info-panel__actions">

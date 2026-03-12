@@ -50,6 +50,38 @@
   color: #fff;
   letter-spacing: -0.5px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+.pn__av-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.pn__dead-icon {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  font-size: 9px;
+  background: #64748b;
+  color: #fff;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #fff;
+  line-height: 1;
+}
+
+/* Falecido — card levemente dessaturado */
+.pn--dead {
+  opacity: 0.75;
+  filter: grayscale(30%);
 }
 
 /* ── Info ────────────────────────────────────────────── */

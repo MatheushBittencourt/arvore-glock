@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './PersonEditor.css'
 
 const EMPTY_PERSON = {
@@ -8,6 +8,10 @@ const EMPTY_PERSON = {
   mae: null,
   conjuge: null,
   filhos: [],
+  foto_url: null,
+  nascimento: null,
+  falecimento: null,
+  observacoes: null,
 }
 
 function SearchSelect({ id, value, onChange, options, placeholder }) {
@@ -87,6 +91,8 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
   const [filhosSearch, setFilhosSearch] = useState('')
   const [visible, setVisible] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState(null)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     requestAnimationFrame(() => setVisible(true))
@@ -101,9 +107,15 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
         mae: person.mae ?? null,
         conjuge: person.conjuge ?? null,
         filhos: Array.isArray(person.filhos) ? [...person.filhos] : [],
+        foto_url: person.foto_url ?? null,
+        nascimento: person.nascimento ?? null,
+        falecimento: person.falecimento ?? null,
+        observacoes: person.observacoes ?? null,
       })
+      setPhotoPreview(person.foto_url ?? null)
     } else {
       setForm({ ...EMPTY_PERSON, id: isNew ? `p-${Date.now()}` : '' })
+      setPhotoPreview(null)
     }
   }, [person, isNew])
 
@@ -120,6 +132,25 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
     })
   }
 
+  // Converte imagem para base64 e salva em foto_url
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const result = ev.target?.result
+      setPhotoPreview(result)
+      handleChange('foto_url', result)
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null)
+    handleChange('foto_url', null)
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     onSave({
@@ -128,6 +159,10 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
       mae: form.mae || null,
       conjuge: form.conjuge || null,
       filhos: form.filhos || [],
+      foto_url: form.foto_url || null,
+      nascimento: form.nascimento || null,
+      falecimento: form.falecimento || null,
+      observacoes: form.observacoes || null,
     })
   }
 
@@ -143,6 +178,12 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
     p.nome.toLowerCase().includes(filhosSearch.toLowerCase())
   )
   const selectedFilhosCount = (form.filhos || []).length
+
+  function initials(nome) {
+    const p = (nome || '?').trim().split(/\s+/)
+    if (p.length === 1) return p[0].slice(0, 2).toUpperCase()
+    return (p[0][0] + p[p.length - 1][0]).toUpperCase()
+  }
 
   return (
     <div
@@ -171,6 +212,38 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="pe-drawer__form">
+
+          {/* ── Foto ── */}
+          <div className="pe-section">
+            <div className="pe-section__title">Foto</div>
+            <div className="pe-photo">
+              <div className="pe-photo__preview">
+                {photoPreview
+                  ? <img src={photoPreview} alt="Foto" className="pe-photo__img" />
+                  : <div className="pe-photo__placeholder">{initials(form.nome)}</div>
+                }
+              </div>
+              <div className="pe-photo__actions">
+                <label className="btn btn--ghost pe-photo__upload-btn">
+                  {photoPreview ? '🔄 Trocar foto' : '📷 Adicionar foto'}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoChange}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                {photoPreview && (
+                  <button type="button" className="btn btn--danger-ghost" onClick={handleRemovePhoto}>
+                    Remover
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Informações básicas ── */}
           <div className="pe-section">
             <div className="pe-section__title">Informações básicas</div>
 
@@ -205,8 +278,44 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
                 />
               </div>
             )}
+
+            <div className="pe-field pe-field--row">
+              <div className="pe-field__half">
+                <label htmlFor="pe-nasc" className="pe-label">Nascimento</label>
+                <input
+                  id="pe-nasc"
+                  type="date"
+                  className="pe-input"
+                  value={form.nascimento || ''}
+                  onChange={(e) => handleChange('nascimento', e.target.value || null)}
+                />
+              </div>
+              <div className="pe-field__half">
+                <label htmlFor="pe-falec" className="pe-label">Falecimento</label>
+                <input
+                  id="pe-falec"
+                  type="date"
+                  className="pe-input"
+                  value={form.falecimento || ''}
+                  onChange={(e) => handleChange('falecimento', e.target.value || null)}
+                />
+              </div>
+            </div>
+
+            <div className="pe-field">
+              <label htmlFor="pe-obs" className="pe-label">Observações</label>
+              <textarea
+                id="pe-obs"
+                className="pe-input pe-textarea"
+                value={form.observacoes || ''}
+                onChange={(e) => handleChange('observacoes', e.target.value || null)}
+                placeholder="Ex: Foi padre missionário, nasceu em Lages/SC…"
+                rows={3}
+              />
+            </div>
           </div>
 
+          {/* ── Relações ── */}
           <div className="pe-section">
             <div className="pe-section__title">Relações</div>
 
@@ -244,6 +353,7 @@ function PersonEditor({ person, people, onSave, onCancel, onDelete, isNew }) {
             </div>
           </div>
 
+          {/* ── Filhos ── */}
           <div className="pe-section">
             <div className="pe-section__title">
               Filhos

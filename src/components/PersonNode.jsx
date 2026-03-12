@@ -21,18 +21,20 @@ function PersonNode({ data, selected }) {
   const {
     nome, generation = 0, isSpouseOnly = false,
     hasConjuge, filhosCount, paiNome, maeNome, conjugeNome,
+    fotoUrl, falecimento,
     onClick,
   } = data
 
   const pal   = PALETTE[Math.min(generation, PALETTE.length - 1)]
   const label = isSpouseOnly ? 'Cônjuge' : pal.label
+  const isDead = !!falecimento
 
   const [tip, setTip] = useState(false)
   const hasTip = paiNome || maeNome || conjugeNome || filhosCount > 0
 
   return (
     <div
-      className={`pn ${selected ? 'pn--selected' : ''}`}
+      className={`pn ${selected ? 'pn--selected' : ''} ${isDead ? 'pn--dead' : ''}`}
       style={{ '--bg': pal.bg, '--bd': pal.border, '--co': pal.color }}
       onClick={() => onClick?.(data)}
       onMouseEnter={() => hasTip && setTip(true)}
@@ -46,8 +48,12 @@ function PersonNode({ data, selected }) {
 
       <div className="pn__body">
         {/* Avatar */}
-        <div className="pn__av" style={{ background: `linear-gradient(135deg, ${pal.color}, ${pal.border})` }}>
-          {initials(nome)}
+        <div className="pn__av" style={fotoUrl ? {} : { background: `linear-gradient(135deg, ${pal.color}, ${pal.border})` }}>
+          {fotoUrl
+            ? <img src={fotoUrl} alt={nome} className="pn__av-photo" />
+            : initials(nome)
+          }
+          {isDead && <span className="pn__dead-icon">✝</span>}
         </div>
 
         {/* Info */}

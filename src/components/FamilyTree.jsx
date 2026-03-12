@@ -213,6 +213,8 @@ function FamilyTreeInner({ people, onNodeClick, selectedId, focusPersonId, zoomT
           paiNome:      byId.get(p.pai)?.nome     ?? null,
           maeNome:      byId.get(p.mae)?.nome     ?? null,
           conjugeNome:  byId.get(p.conjuge)?.nome ?? null,
+          fotoUrl:      p.foto_url ?? null,
+          falecimento:  p.falecimento ?? null,
           onClick: onNodeClick,
         },
       }
