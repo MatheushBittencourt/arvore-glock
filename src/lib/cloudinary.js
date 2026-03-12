@@ -7,9 +7,12 @@ export async function uploadToCloudinary(file, onProgress) {
   form.append('upload_preset', PRESET)
   form.append('folder', 'familia-glock')
 
+  // Cloudinary free plan: usar 'image' para imagens, 'raw' para outros (PDF, doc, etc.)
+  const resourceType = file.type.startsWith('image/') ? 'image' : 'raw'
+
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD}/auto/upload`)
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD}/${resourceType}/upload`)
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {
