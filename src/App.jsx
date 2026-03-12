@@ -27,7 +27,10 @@ async function dbUpsert(person) {
 }
 async function dbSeedInitial(people) {
   if (!supabase) return
-  const { error } = await supabase.from('pessoas').upsert(people.map(personToRow), { onConflict: 'id', ignoreDuplicates: true })
+  // Remove registros que não existem mais no initialFamily
+  const validIds = people.map(p => p.id)
+  await supabase.from('pessoas').delete().not('id', 'in', `(${validIds.map(id => `"${id}"`).join(',')})`)
+  const { error } = await supabase.from('pessoas').upsert(people.map(personToRow), { onConflict: 'id' })
   if (error) throw error
 }
 async function dbDeleteAll() {
@@ -104,7 +107,12 @@ export default function App() {
     async function init() {
       try {
         let remote = await dbLoadAll()
-        if (remote.length === 0) { await dbSeedInitial(initialFamily); remote = initialFamily }
+        const validIds = new Set(initialFamily.map(p => p.id))
+        const hasStale = remote.some(p => !validIds.has(p.id))
+        if (remote.length === 0 || hasStale) {
+          await dbSeedInitial(initialFamily)
+          remote = initialFamily
+        }
         setPeople(remote); lsSave(remote)
       } catch (err) {
         console.error(err)
