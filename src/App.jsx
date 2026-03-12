@@ -258,7 +258,7 @@ export default function App() {
       <header className="app__header">
         <div className="app__brand">
           <div className="app__brand-icon">🌳</div>
-          <div>
+          <div className="app__brand-text">
             <div className="app__title">Família Glock</div>
             <div className="app__subtitle">Árvore Genealógica</div>
           </div>

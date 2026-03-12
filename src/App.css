@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--clr-bg);
 }
@@ -12,9 +13,9 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  height: 60px;
+  gap: 10px;
+  padding: 0 16px;
+  height: 56px;
   background: var(--clr-surface);
   border-bottom: 1px solid var(--clr-border);
   box-shadow: 0 1px 4px var(--clr-shadow);
@@ -38,6 +39,7 @@
   justify-content: center;
   font-size: 16px;
   box-shadow: 0 2px 8px rgba(59, 91, 219, 0.3);
+  flex-shrink: 0;
 }
 
 .app__title {
@@ -54,6 +56,11 @@
   white-space: nowrap;
 }
 
+/* Oculta texto do brand em telas pequenas */
+@media (max-width: 479px) {
+  .app__brand-text { display: none; }
+}
+
 .app__actions {
   display: flex;
   align-items: center;
@@ -67,6 +74,11 @@
   height: 22px;
   background: var(--clr-border);
   margin: 0 2px;
+}
+
+/* Oculta divisor no mobile */
+@media (max-width: 599px) {
+  .app__divider { display: none; }
 }
 
 .app__btn-label {
@@ -175,6 +187,15 @@
   box-shadow: 0 4px 16px rgba(0,0,0,0.2);
   white-space: nowrap;
   animation: fadeInDown 0.2s ease;
+  max-width: calc(100vw - 28px);
+}
+
+@media (max-width: 599px) {
+  .app__focus-banner {
+    font-size: 0.75rem;
+    padding: 7px 12px;
+    gap: 8px;
+  }
 }
 
 .app__focus-banner strong { color: #fff; }
@@ -212,9 +233,29 @@
   animation: slideInLeft 0.2s ease;
 }
 
+/* Mobile: info panel como bottom sheet */
+@media (max-width: 599px) {
+  .app__info-panel {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    animation: slideInUp 0.22s ease;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+
 @keyframes slideInLeft {
   from { opacity: 0; transform: translateX(-10px); }
   to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .info-panel__header {
@@ -332,6 +373,10 @@
   font-size: 0.75rem;
 }
 
+@media (max-width: 599px) {
+  .app__legend { display: none; }
+}
+
 .legend__title {
   font-weight: 700;
   color: var(--clr-text-muted);
@@ -391,6 +436,15 @@
   font-weight: 600;
   color: var(--clr-text-muted);
   box-shadow: 0 2px 8px var(--clr-shadow);
+}
+
+@media (max-width: 599px) {
+  .app__sync-badge {
+    bottom: 14px;
+    right: 14px;
+    font-size: 0.65rem;
+    padding: 4px 10px;
+  }
 }
 
 .app__sync-dot {
@@ -516,6 +570,10 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
   padding: 20px;
+}
+
+@media (max-width: 399px) {
+  .stats-grid { grid-template-columns: 1fr; }
 }
 
 .stat-card {

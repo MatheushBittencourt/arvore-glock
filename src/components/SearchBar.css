@@ -1,7 +1,16 @@
 .search-bar {
   position: relative;
   width: 260px;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+}
+
+@media (max-width: 599px) {
+  .search-bar { width: 100%; flex: 1; min-width: 0; }
+}
+
+@media (max-width: 359px) {
+  .search-bar { display: none; }
 }
 
 .search-bar__field {
@@ -70,6 +79,8 @@
   z-index: 200;
   overflow: hidden;
   animation: dropIn 0.12s ease;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 @keyframes dropIn {
