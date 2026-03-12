@@ -30,7 +30,12 @@ export async function uploadToCloudinary(file, onProgress) {
           tipo:      data.resource_type + '/' + data.format,
         })
       } else {
-        reject(new Error('Erro no upload: ' + xhr.statusText))
+        try {
+          const err = JSON.parse(xhr.responseText)
+          reject(new Error(err?.error?.message || xhr.statusText))
+        } catch {
+          reject(new Error(xhr.statusText))
+        }
       }
     }
 

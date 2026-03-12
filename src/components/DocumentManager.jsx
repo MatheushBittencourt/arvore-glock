@@ -67,6 +67,16 @@ export default function DocumentManager({ pessoaId, pessoaNome }) {
   async function handleUpload(e) {
     const files = Array.from(e.target.files || [])
     if (!files.length) return
+
+    // Valida tamanho antes de enviar (limite 10MB do Cloudinary free)
+    const MAX_MB = 10
+    const tooBig = files.filter(f => f.size > MAX_MB * 1024 * 1024)
+    if (tooBig.length) {
+      setError(`Arquivo(s) muito grande(s): ${tooBig.map(f => f.name).join(', ')}. Limite máximo: ${MAX_MB}MB por arquivo.`)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
+    }
+
     setError(null)
     setUploading(true)
     setProgress(0)
@@ -86,7 +96,12 @@ export default function DocumentManager({ pessoaId, pessoaNome }) {
       }
       await loadDocs()
     } catch (e) {
-      setError('Erro ao enviar documento. Tente novamente.')
+      const msg = e.message || ''
+      if (msg.includes('too large') || msg.includes('size')) {
+        setError('Arquivo muito grande. O limite é 10MB por arquivo.')
+      } else {
+        setError('Erro ao enviar documento. Tente novamente.')
+      }
     } finally {
       setUploading(false)
       setProgress(0)
